@@ -50,5 +50,5 @@ test:
 production:
   <<: *default
   database: libra_api_production
-  username: libra_api
-  password: <%= ENV['LIBRA_API_DATABASE_PASSWORD'] %>
+  username: root
+  password:
