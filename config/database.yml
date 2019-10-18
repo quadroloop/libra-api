@@ -11,7 +11,6 @@ test:
 production:
   <<: *default
   database: libra_api_production
-  username:
-  password:
-  host:
+  username: libra_api
+  password: <%= ENV['MYAPP_DATABASE_PASSWORD'] %>
 
