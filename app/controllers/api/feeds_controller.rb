@@ -1,35 +1,18 @@
 class Api::FeedsController < ApplicationController
   def index
-    feeds = [
-       {
-           "id": "1",
-           "country_name": "Philippines",
-           "city_name": "Davao Oriental",
-           "danger_index": 9.8,
-           "lat": 21.85,
-           "long": 108.45,
-           "harzards": ["earthquake","landslide","flooding","storm_surge","typhoon","disease"
-        
-           ],
-            "data_sources": ["nasa","noah"]
-        },
+    feeds = History.all
+    response = feeds.map.with_index do |feed, index|
+      {
+        id: "item-#{index}",
+        country: 'Philippines',
+        country_name: feed.country_name ,
+        location: feed.location ,
+        source: feed.source
+      }
+    end
 
-        {
-           "id": "2",
-           "country_name": "Philippines",
-           "city_name": "Davao Oriental",
-           "danger_index": 9.8,
-           "lat": 21.85,
-           "long": 108.45,
-           "harzards": ["earthquake","landslide","flooding","storm_surge","typhoon","disease"
-        
-           ],
-            "data_sources": ["nasa","noah"]
-        }
-
-    ]
-
-    render json: feeds
-    
+    render json: response
   end
+
+
 end
