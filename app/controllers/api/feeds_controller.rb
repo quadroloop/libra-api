@@ -1,9 +1,9 @@
 class Api::FeedsController < ApplicationController
   def index
     feeds = History.all
-    response = feeds.map.with_index do |feed, index|
+    response = feeds.map do |feed|
       {
-        id: "item-#{index}",
+        id: "item-#{feed.id}",
         country: 'Philippines',
         country_name: feed.country_name ,
         location: feed.location ,
