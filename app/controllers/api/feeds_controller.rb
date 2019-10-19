@@ -1,7 +1,8 @@
 class Api::FeedsController < ApplicationController
   def index
     feeds = History.all
-    response = feeds.map do |feed|
+    uniq_feeds = feeds.uniq{|feed| feed.location}
+    response = uniq_feeds.map do |feed|
       {
         id: "item-#{feed.id}",
         country_name: feed.country_name ,
