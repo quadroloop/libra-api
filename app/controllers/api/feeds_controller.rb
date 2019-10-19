@@ -4,7 +4,6 @@ class Api::FeedsController < ApplicationController
     response = feeds.map do |feed|
       {
         id: "item-#{feed.id}",
-        country: 'Philippines',
         country_name: feed.country_name ,
         location: feed.location ,
         source: feed.source
