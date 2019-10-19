@@ -1,5 +1,4 @@
 require 'json'
-desc "Task description"
 task migrate_nasa_landslide: :environment do
   file = File.read("#{Rails.root}/public/landslide.json")
 
@@ -8,9 +7,12 @@ task migrate_nasa_landslide: :environment do
   parsed_data.each do |data|
     puts "=== saving objectid: #{data['objectid']} ==="
     puts "=== counntry #{data['countrynam']} ==="
+
+    location = data['adminname2'] != 'obe' || data['adminname2'].blank?  ? data['adminname2'] : data['adminname1']
+
     history = History.new
     history.country_name = data['countrynam']
-    history.location = data['adminname2']
+    history.location = location
     history.source = 'nasa'
     history.data_result = data
     history.save
