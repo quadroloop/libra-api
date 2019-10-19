@@ -41,7 +41,7 @@ class Api::LocationsController < ApplicationController
         data_source: filteredFeed.source,
         lat: lat,
         long: long,
-        history: filteredFeed.data_result
+        history: findLocation(query, nil)
       }
     end
   end
