@@ -5,7 +5,7 @@ class Api::LocationsController < ApplicationController
 
     filteredFeeds = findLocation(query, true)
     location = map_danger_index(filteredFeeds, query)
-    render json: location
+    render json: location[0]
   end
 
   private def findLocation(query, filtered)
