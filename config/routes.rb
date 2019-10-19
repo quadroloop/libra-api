@@ -3,5 +3,6 @@ Rails.application.routes.draw do
   namespace :api do
     get 'feeds', to: 'feeds#index'
     get 'feeds/philippines', to: 'feeds#philippines'
+    get 'location', to: 'locations#index'
   end
 end
