@@ -1,6 +1,6 @@
 class Api::FeedsController < ApplicationController
   def index
-    feeds = History.limit(1500)
+    feeds = History.limit(1000)
 
     earthquake_feeds = EarthquakeData.parsed_unknown_number_of_deaths
 
@@ -54,7 +54,7 @@ class Api::FeedsController < ApplicationController
       end
     end
 
-    feeds_result
+    feeds_result.sort_by { |h | h[:danger_index] }.reverse
   end
 
 end
