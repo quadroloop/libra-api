@@ -6,17 +6,21 @@ class EarthquakeData
 
     parsed_data = JSON.parse(file)
 
-    parsed_data.each do |p|
-      history = History.new
-      country_name = p['location'].partition(':').first
-      location = p['location'].partition(':').last.partition(',').first
-      history.country_name = country_name.strip
-      history.location = location.strip
-      history.source = 'https://github.com/plotly/datasets'
-      history.hazard = 'earthquake'
-      history.data_result = p
+    parsed_data.in_groups_of(100, false) do |group|
+      group.each do |p|
+        history = {}
 
-      data << history
+        country_name = p['location'].partition(':').first
+        location = p['location'].partition(':').last.partition(',').first
+
+        history['country_name'] = country_name.strip
+        history['location'] = location.strip
+        history['source'] = 'https://github.com/plotly/datasets'
+        history['hazard'] = 'earthquake'
+        history['data_result'] = p
+
+        data << history
+      end
     end
 
     data

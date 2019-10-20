@@ -21,7 +21,7 @@ class Api::LocationsController < ApplicationController
 
     locations_from_db = History.where(condition, query)
 
-    earthquake_feeds = EarthquakeData::parsed_unknown_number_of_deaths
+    earthquake_feeds = EarthquakeData.parsed_unknown_number_of_deaths
 
     locations_from_json = earthquake_feeds.select{|f| f['location'].downcase == query}
 

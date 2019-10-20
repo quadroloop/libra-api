@@ -14,8 +14,8 @@ class Location
   end
 
   def get_lat_long
-    nasa_data = @query.select{|q| q.source == 'nasa'}
-    noah_data = @query.select{|q| q.source == 'noah'}
+    nasa_data = @query.select{|q| q['source'] == 'nasa'}
+    noah_data = @query.select{|q| q['source'] == 'noah'}
 
     nasa_lat_long(nasa_data).present? ? nasa_lat_long(nasa_data) : noah_lat_long(noah_data)
 

@@ -2,11 +2,11 @@ class Api::FeedsController < ApplicationController
   def index
     feeds = History.all
 
-    earthquake_feeds = EarthquakeData::parsed_unknown_number_of_deaths
+    earthquake_feeds = EarthquakeData.parsed_unknown_number_of_deaths
 
     all_data = feeds + earthquake_feeds
 
-    uniq_feeds = all_data.uniq{|feed| feed.location}
+    uniq_feeds = all_data.uniq{|feed| feed['location']}
 
     parsed_feeds = format_response(uniq_feeds, all_data)
 
@@ -16,7 +16,7 @@ class Api::FeedsController < ApplicationController
   def philippines
     feeds = History.where(country_name: 'Philippines')
 
-    earthquake_feeds = EarthquakeData::parsed_unknown_number_of_deaths
+    earthquake_feeds = EarthquakeData.parsed_unknown_number_of_deaths
 
     locations_from_json = earthquake_feeds.select{|f| f['country_name'] == 'Philippines'}
 
@@ -36,7 +36,7 @@ class Api::FeedsController < ApplicationController
 
     uniq_feeds.in_groups_of(600, false)  do |group|
       group.each do |feed|
-        query = feeds.select{|f|f['location'] == feed.location}
+        query = feeds.select{|f|f['location'] == feed['location']}
         data_source = query.map{|q| q['source']}.uniq
         hazards = query.map{|q| q['hazard']}.uniq
 
