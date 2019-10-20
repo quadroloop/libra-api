@@ -1,6 +1,6 @@
 class Api::FeedsController < ApplicationController
   def index
-    feeds = History.limit(5000)
+    feeds = History.limit(1500)
 
     earthquake_feeds = EarthquakeData.parsed_unknown_number_of_deaths
 
