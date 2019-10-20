@@ -6,7 +6,7 @@ class EarthquakeData
 
     parsed_data = JSON.parse(file)
 
-    parsed_data.in_groups_of(100, false) do |group|
+    parsed_data.in_groups_of(300, false) do |group|
       group.each do |p|
         history = {}
 
