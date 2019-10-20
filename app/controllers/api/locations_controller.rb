@@ -3,70 +3,69 @@ class Api::LocationsController < ApplicationController
   def index
     query = params[:location].downcase
 
-    filteredFeeds = findLocation(query, true)
-    location = map_danger_index(filteredFeeds, query)
-    render json: location[0]
+    filteredFeeds = findLocation(query)
+
+    return no_found_location_response unless filteredFeeds
+
+    location_danger_index = Location.new(filteredFeeds).compute_danger_index
+
+    response = format_response(filteredFeeds, location_danger_index)
+
+    render json: response
   end
 
   private
 
-  def findLocation(query, filtered)
+  def findLocation(query)
     condition = 'lower(location) = ?'
 
     locations = History.where(condition, query)
-    if filtered then
-      locations.uniq{ |feed| feed.location }
-    else
-      locations
-    end
   end
 
   def map_danger_index(filteredFeeds, query)
-    filteredFeeds.map do |filteredFeed|
-      danger_index = ''
-      if(filteredFeed.source === 'noah') then
-        danger_index = noah_danger_index(query)
-        # puts filteredFeed.data_result[:]
-        lat = filteredFeed.data_result[:center][:lat]
-        long = filteredFeed.data_result[:center][:lng]
-      else
-        danger_index = nasa_danger_index(query)
-        lat = filteredFeed.data_result[:latitude]
-        long = filteredFeed.data_result[:longitude]
-      end
+    danger_index = get_danger_index(filteredFeeds)
 
-      {
-        id: "item-#{filteredFeed.id}",
-        country_name: filteredFeed.country_name ,
-        city_name: filteredFeed.location ,
-        danger_index: danger_index,
-        data_source: filteredFeed.source,
-        lat: lat,
-        long: long,
-        history: findLocation(query, nil)
-      }
-    end
+    danger_count = danger_index.select{|k,v| v == true}.count
+
+    danger_percentage = (danger_count.to_f / History::DEFAULT_HAZARDS.count.to_f ) * 100
+
+    danger_percentage.to_f / 10
+
   end
 
-  def noah_danger_index(query)
-    count = findLocation(query, nil).count
-    count > 10 ? 10 : count
+  def get_danger_index(query)
+    danger_index = {}
+    History::DEFAULT_HAZARDS.each do |hazard|
+      danger_index[hazard.to_sym] = query.select{|q|q['hazard'] == hazard}.present?
+    end
+
+    danger_index.stringify_keys
+
   end
 
-  def nasa_danger_index(query)
-    location = findLocation(query, nil)
-    data = location.inject(0.0) do |data1, data2|
-      if(data1 === 0) then
-        num1 = data1
-      else
-        num1 = data1.to_f + data.to_f
-      end
-      num2 = data2.data_result[:fatalities].to_f + data2.data_result[:injuries].to_f
-       # sum of fatalities and injuries
-       # per recurring records
-      num1 + num2
-    end
-    data/location.count
+  def format_response(filteredFeeds, location_danger_index)
+    data_source = filteredFeeds.pluck(:source).uniq
+    hazards = filteredFeeds.pluck(:hazard).uniq
+
+    lat_long = Location.new(filteredFeeds).get_lat_long
+
+    {
+      country_name: filteredFeeds[0].country_name,
+      city_name: filteredFeeds[0].location,
+      danger_index: location_danger_index,
+      data_source: data_source,
+      hazards: hazards,
+      lat: lat_long['lat'],
+      long: lat_long['long'],
+      history: filteredFeeds
+    }
+
+  end
+
+  def no_found_location_response
+    render json: { error: 'No Location Founds' }, status: :not_found
+
+
   end
 
 end

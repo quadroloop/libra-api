@@ -15,6 +15,7 @@ task migrate_nasa_landslide: :environment do
     history.location = location
     history.source = 'nasa'
     history.data_result = data
+    history.hazard = 'landslide'
     history.save
 
   end

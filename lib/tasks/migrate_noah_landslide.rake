@@ -17,6 +17,7 @@ task migrate_noah_landslide: :environment do
       history.location = location.titleize
       history.source = 'noah'
       history.data_result = data
+      history.hazard = 'landslide'
       history.save
     end
   end

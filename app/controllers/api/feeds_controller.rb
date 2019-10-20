@@ -2,70 +2,46 @@ class Api::FeedsController < ApplicationController
   def index
     feeds = History.all
     uniq_feeds = feeds.uniq{|feed| feed.location}
-    render json: map_danger_index(uniq_feeds)
+
+    parsed_feeds = format_response(uniq_feeds, feeds)
+
+    render json: parsed_feeds
   end
 
   def philippines
     feeds = History.where(country_name: 'Philippines')
     filtered = feeds.uniq{|feed| feed.location}
-    render json: map_danger_index(filtered)
+
+     parsed_feeds = format_response(filtered, feeds)
+
+    render json: parsed_feeds
   end
 
-  private def map_danger_index(filteredFeeds)
-    filteredFeeds.map do |filteredFeed|
-      query = filteredFeed.location.downcase
-      if(filteredFeed.source === 'noah') then
-        danger_index = noah_danger_index(query)
-        lat = filteredFeed.data_result[:center][:lat]
-        long = filteredFeed.data_result[:center][:lng]
-      else
-        danger_index = nasa_danger_index(query)
-        lat = filteredFeed.data_result[:latitude]
-        long = filteredFeed.data_result[:longitude]
-      end
+  private
 
-      {
-        id: "item-#{filteredFeed.id}",
-        country_name: filteredFeed.country_name ,
-        city_name: filteredFeed.location ,
-        danger_index: danger_index,
-        data_source: filteredFeed.source,
-        lat: lat,
-        long: long,
-      }
+  def format_response(uniq_feeds, feeds)
+    feeds_result = []
+
+    uniq_feeds.each do |feed|
+      query = feeds.where(location: feed.location)
+      data_source = query.pluck(:source).uniq
+      hazards = query.pluck(:hazard).uniq
+
+      lat_long = Location.new(query).get_lat_long
+
+      feeds_result << {
+                  country_name: feed['country_name'],
+                  city_name: feed['location'],
+                  danger_index: Location.new(query).compute_danger_index,
+                  data_source: data_source,
+                  hazards: hazards,
+                  lat: lat_long['lat'],
+                  long: lat_long['long']
+               }
+
     end
-  end
 
-  private def noah_danger_index(query)
-    count = findLocation(query, nil).count
-    count > 10 ? 10 : count
-  end
-
-  private def findLocation(query, filtered)
-    condition = 'lower(location) = ?'
-    locations = History.where(condition, query)
-    if filtered then
-      locations.uniq{ |feed| feed.location }
-    else
-      locations
-    end
-  end
-
-  private def nasa_danger_index(query)
-    puts "query=#{query}"
-    location = findLocation(query, nil)
-    data = location.inject(0.0) do |data1, data2|
-      if(data1 === 0) then
-        num1 = data1
-      else
-        num1 = data1.to_f + data.to_f
-      end
-      num2 = data2.data_result[:fatalities].to_f + data2.data_result[:injuries].to_f
-       # sum of fatalities and injuries
-       # per recurring records
-      num1 + num2
-    end
-    data/location.count
+    feeds_result
   end
 
 end
