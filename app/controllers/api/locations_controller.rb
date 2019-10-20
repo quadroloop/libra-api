@@ -8,7 +8,9 @@ class Api::LocationsController < ApplicationController
     render json: location[0]
   end
 
-  private def findLocation(query, filtered)
+  private
+
+  def findLocation(query, filtered)
     condition = 'lower(location) = ?'
 
     locations = History.where(condition, query)
@@ -19,7 +21,7 @@ class Api::LocationsController < ApplicationController
     end
   end
 
-  private def map_danger_index(filteredFeeds, query)
+  def map_danger_index(filteredFeeds, query)
     filteredFeeds.map do |filteredFeed|
       danger_index = ''
       if(filteredFeed.source === 'noah') then
@@ -46,12 +48,12 @@ class Api::LocationsController < ApplicationController
     end
   end
 
-  private def noah_danger_index(query)
+  def noah_danger_index(query)
     count = findLocation(query, nil).count
     count > 10 ? 10 : count
   end
 
-  private def nasa_danger_index(query)
+  def nasa_danger_index(query)
     location = findLocation(query, nil)
     data = location.inject(0.0) do |data1, data2|
       if(data1 === 0) then
