@@ -19,33 +19,19 @@ class Api::LocationsController < ApplicationController
   def findLocation(query)
     condition = 'lower(location) = ?'
 
-    locations = History.where(condition, query)
-  end
+    locations_from_db = History.where(condition, query)
 
-  def map_danger_index(filteredFeeds, query)
-    danger_index = get_danger_index(filteredFeeds)
+    earthquake_feeds = EarthquakeData::parsed_unknown_number_of_deaths
 
-    danger_count = danger_index.select{|k,v| v == true}.count
+    locations_from_json = earthquake_feeds.select{|f| f['location'].downcase == query}
 
-    danger_percentage = (danger_count.to_f / History::DEFAULT_HAZARDS.count.to_f ) * 100
-
-    danger_percentage.to_f / 10
-
-  end
-
-  def get_danger_index(query)
-    danger_index = {}
-    History::DEFAULT_HAZARDS.each do |hazard|
-      danger_index[hazard.to_sym] = query.select{|q|q['hazard'] == hazard}.present?
-    end
-
-    danger_index.stringify_keys
+    locations_from_db + locations_from_json
 
   end
 
   def format_response(filteredFeeds, location_danger_index)
-    data_source = filteredFeeds.pluck(:source).uniq
-    hazards = filteredFeeds.pluck(:hazard).uniq
+    data_source = filteredFeeds.map{|q| q['source']}.uniq
+    hazards = filteredFeeds.map{|q| q['hazard']}.uniq
 
     lat_long = Location.new(filteredFeeds).get_lat_long
 

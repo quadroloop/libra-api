@@ -14,8 +14,8 @@ class Location
   end
 
   def get_lat_long
-    nasa_data = @query.where(source: 'nasa')
-    noah_data = @query.where(source: 'noah')
+    nasa_data = @query.select{|q| q.source == 'nasa'}
+    noah_data = @query.select{|q| q.source == 'noah'}
 
     nasa_lat_long(nasa_data).present? ? nasa_lat_long(nasa_data) : noah_lat_long(noah_data)
 
@@ -26,7 +26,7 @@ class Location
   def get_danger_index
     danger_index = {}
     History::DEFAULT_HAZARDS.each do |hazard|
-      danger_index[hazard.to_sym] = @query.where(hazard: hazard.downcase).present?
+      danger_index[hazard.to_sym] = @query.select{|q| q['hazard'] == hazard}.present?
     end
     danger_index.stringify_keys
   end
