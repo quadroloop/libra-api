@@ -34,7 +34,7 @@ class Api::FeedsController < ApplicationController
   def format_response(uniq_feeds, feeds)
     feeds_result = []
 
-    uniq_feeds.in_groups_of(500, false)  do |group|
+    uniq_feeds.in_groups_of(600, false)  do |group|
       group.each do |feed|
         query = feeds.select{|f|f['location'] == feed.location}
         data_source = query.map{|q| q['source']}.uniq
