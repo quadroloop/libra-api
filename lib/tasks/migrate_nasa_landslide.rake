@@ -10,9 +10,11 @@ task migrate_nasa_landslide: :environment do
 
     location = data['adminname2'] != 'obe' || data['adminname2'].blank?  ? data['adminname2'] : data['adminname1']
 
+    default_location = location.present? ? location : data['countrynam']
+
     history = History.new
     history.country_name = data['countrynam']
-    history.location = location
+    history.location = default_location
     history.source = 'nasa'
     history.data_result = data
     history.hazard = 'landslide'
